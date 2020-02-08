@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+       <!--
+           配置一个注解驱动，这样所有的注解就起效果了
+       -->
+       <mvc:annotation-driven>
+              <mvc:message-converters>
+                     <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                            <!--
+                            将返回值以application/json;charset=utf-8的形式写入response的body中
+                            -->
+                            <property name="supportedMediaTypes" value="application/json;charset=utf-8">
+
+
+                            </property>
+
+
+                     </bean>
+              </mvc:message-converters>
+       </mvc:annotation-driven>
+
+       <!--附件上传
+       1:需要两个额外的jar包:commons-fileupload.jar,commons-io.jar
+       2:id值必须为multipartResolver
+         原因：在springmvc中的核心类：DispatcherServelet.java,已经把一些bean的id固定了，你必须保证bean的id相同，才能正常工作
+
+       -->
+       <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+              <!--最大上传字节:10M-->
+              <property name="maxUploadSize" value="10000000"></property>
+              <!--附件默认字符集-->
+              <property name="defaultEncoding" value="utf-8"/>
+
+       </bean>
+
+       <!--扫描controller包-->
+       <context:component-scan base-package="com.zte.zshop.front.controller"/>
+
+       <!--配置视图解析器
+           作用：根据视图名称和模型数据通过该视图解析器，渲染成真正的页面，返回给客户端浏览器
+           你只要返回视图名，这个视图解析器根据你的视图名通过JstlView,将该视图名解析成对应的页面
+           例如：如果你的视图名是some,对应的页面：是/WEB-INF/backend/some.jsp
+       -->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+              <!--使用哪个视图渲染-->
+              <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+              <!--前缀-->
+              <property name="prefix" value="/WEB-INF/views/"/>
+              <!--后缀-->
+              <property name="suffix" value=".jsp"/>
+       </bean>
+
+       <!--静态资源，不需要通过springmvc的DispatherServlet进行处理，而是调用servlet的默认处理方式-->
+       <mvc:default-servlet-handler/>
+
+       <!--配置简单的可直接访问的视图-->
+       <mvc:view-controller path="/showLogin" view-name="login"/>
+
+       <!--将对应的路径进行映射-->
+       <mvc:resources mapping="/css/**" location="/WEB-INF/css/"/>
+       <mvc:resources mapping="/js/**" location="/WEB-INF/js/"/>
+       <mvc:resources mapping="/images/**" location="/WEB-INF/images/"/>
+       <mvc:resources mapping="/fonts/**" location="/WEB-INF/fonts/"/>
+       <mvc:resources mapping="/layer/**" location="/WEB-INF/layer/"/>
+       <mvc:resources mapping="/iconfont/**" location="/WEB-INF/iconfont/"/>
+
+
+</beans>
